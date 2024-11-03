@@ -21,9 +21,9 @@ from drf_yasg.views import get_schema_view
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Django REST API",
+        title="Miinventory API",
         default_version="v1",
-        description="Example Django REST API with GET, POST, PUT, DELETE methods.",
+        description="Miinventory API built in Django REST API",
     ),
     public=True,
 )
