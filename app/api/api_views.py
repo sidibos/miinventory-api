@@ -7,10 +7,45 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import User
 from .serializers import UserSerializer
+from .models import Product
+from .serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 
 
 # The swagger_auto_schema decorator is used to document the API endpoints.
+@swagger_auto_schema(
+    method="get",
+    operation_summary="Lists all products",
+    operation_description="API endpoint that retrieves all products and returns them in JSON "
+    "format.",
+    responses={
+        200: "All products in JSON format",
+        400: "Bad request: Check error message for details",
+        500: "Internal server error: Unexpected error",
+    },
+)
+@api_view(["GET"])
+def get_products(request):
+    """
+    API endpoint that retrieves all products.
+
+    For retrieving all products, send a GET request without any parameters.
+
+    :return: A JSON response with a list of all users or the requested user data.
+             Returns an error response if the "email" parameter is missing or the
+             requested user is not found.
+    """
+
+    # Return all products
+    try:
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+    # Catch unexpected errors and return a 500 response
+    except Exception as e:
+        return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 @swagger_auto_schema(
     method="get",
     operation_summary="Lists all users or a single user by email",
