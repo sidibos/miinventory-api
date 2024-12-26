@@ -1,15 +1,16 @@
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User
-from .serializers import UserSerializer
+from .models import User, Customer, CustomerUser
+from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
 from .models import Product
 from .serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
+import re
 
 
 # The swagger_auto_schema decorator is used to document the API endpoints.
@@ -113,6 +114,24 @@ def get_users(request):
     except Exception as e:
         return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(["GET"])
+def edit_user(request, email=''):
+    # Return requested user
+    try:
+        valid_email = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
+        if not valid_email:
+            raise ValidationError("Invalid Email")
+    
+        user = get_object_or_404(User, email=email)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    # Catch Http404 raised by get_object_or_404() if user is not found
+    except Http404:
+        return Response({"result": "error", "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except ValidationError as e:
+        return Response({"result": "error", "message": e.detail}, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method="post",
@@ -275,3 +294,9 @@ def delete_user(request):
     # Catch unexpected errors and return a 500 response
     except Exception as e:
         return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CustomerList(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerialiser
+

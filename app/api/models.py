@@ -1,6 +1,14 @@
 import uuid
 from django.db import models
 
+class TimeStampedModel(models.Model):
+    """Abstract base class that adds created_at and updated_at fields to models."""
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True        
+
 
 class User(models.Model):
     """
@@ -32,7 +40,6 @@ class UserProfile(models.Model):
 
 
 class Product(models.Model):
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(User, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -50,4 +57,34 @@ class Product(models.Model):
     class Meta:
         app_label = "api"
         unique_together = ['user']
+
+
+class Customer(TimeStampedModel):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4)
+    name = models.CharField(max_length=255, blank=False, null=False)
+    phone = models.CharField(max_length=50, null=True)
+    address = models.CharField(max_length=255)
+    bank_name = models.CharField(max_length=255, null=True)
+    account_holder = models.CharField(max_length=255, null=True)
+    account_number = models.CharField(max_length=255, null=True)
+    short_code = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return f"Customer {self.name}"
+    
+    class Meta:
+        app_label = "api" 
+    
+class CustomerUser(TimeStampedModel):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "api"
+
+
+
+
+    #photo = models.ImageField(upload_to='images/', blank=True, null=True, null=True)
+
 
