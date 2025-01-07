@@ -4,6 +4,8 @@ from .models import Product
 from .models import UserProfile
 from .models import Customer
 from .models import CustomerUser
+from .models import Order
+from .models import OrderDetail
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -53,7 +55,12 @@ class CustomerUserSerialiser(serializers.ModelSerializer):
         fields = ['id', 'customer', 'user']
 
 class CustomerSerialiser(serializers.ModelSerializer):
-    users = serializers.SerializerMethodField()
+    users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all()
+    )
+    Orders = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Order.objects.all()
+    )
     class Meta:
         model = Customer
         fields = [
@@ -66,11 +73,30 @@ class CustomerSerialiser(serializers.ModelSerializer):
             'account_holder',
             'account_number',
             'short_code',
-            'users'
+            'users',
+            'saleOrders'
         ]
 
     def get_users(self,obj:User):
         users = obj.customeruser_set.all()
         return CustomerUserSerialiser(users,many=True).data      
 
-
+class OrderSerialiser():
+    orderItems = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=OrderDetail.objects.all()
+    )
+    class Meta:
+        model = Order
+        fields = [
+            'id',
+            'uuid',
+            'order_status',
+            'total_products',
+            'sub_total',
+            'vat',
+            'total',
+            'invoice_no',
+            'payment_type',
+            'pay',
+            'due'
+        ]
