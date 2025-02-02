@@ -5,12 +5,14 @@ from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User, Customer, CustomerUser
+from .models import User, Customer, CustomerUser, Shipment
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
-from .models import Product
+from .models import Product, Warehouse, Order, Location, Quotation
 from .serializers import ProductSerializer
+from .serializers import WarehouseSerializer
+from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer
+from .serializers import QuotationSerializer
 from django.shortcuts import get_object_or_404
-import re
 
 
 # The swagger_auto_schema decorator is used to document the API endpoints.
@@ -300,3 +302,22 @@ class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerialiser
 
+class WareahouseList(generics.ListAPIView):
+    queryset = Warehouse.objects.all()
+    serializer_class = WarehouseSerializer
+
+class LocationList(generics.ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class OrderList(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerialiser
+
+class ShippingList(generics.ListAPIView):
+    queryset = Shipment.objects.all()
+    serializer_class = ShipmentSerializer
+
+class QuotationList(generics.ListAPIView):
+    queryset = Quotation.objects.all()
+    serializer_class = QuotationSerializer    
