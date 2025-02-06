@@ -5,12 +5,12 @@ from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User, Customer, CustomerUser, Shipment
+from .models import User, Customer, CustomerUser, Shipment, Supplier
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
 from .models import Product, Warehouse, Order, Location, Quotation
 from .serializers import ProductSerializer
 from .serializers import WarehouseSerializer
-from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer
+from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer, SupplierSerializer
 from .serializers import QuotationSerializer
 from django.shortcuts import get_object_or_404
 
@@ -321,3 +321,7 @@ class ShippingList(generics.ListAPIView):
 class QuotationList(generics.ListAPIView):
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer    
+
+class SupplierList(generics.ListAPIView):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
