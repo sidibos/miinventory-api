@@ -21,6 +21,25 @@ SECRET_KEY = environ.get("SECRET_KEY", "INSECURE_KEY")
 
 DEBUG = int(environ.get("DEBUG", default=1))
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 # 'DJANGO_ALLOWED_HOSTS' should be a single string of hosts with a space between each.
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
 ALLOWED_HOSTS = environ.get("DJANGO_ALLOWED_HOSTS", "DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]").split(" ")

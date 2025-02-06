@@ -14,7 +14,7 @@ from .models import Location
 class UserSerializer(serializers.ModelSerializer):
     products = serializers.StringRelatedField(many=True)
     profile = serializers.StringRelatedField(many=False)
-    customers = serializers.StringRelatedField(many=True)
+    #customers = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User
@@ -108,12 +108,12 @@ class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = [
-            'name',
+            's_name',
             'phone',
             'address',
             'email',
-            'website',
-            'notes'
+            #'website',
+            #'notes'
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
