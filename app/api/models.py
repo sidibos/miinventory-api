@@ -34,6 +34,7 @@ class User(TimeStampedModel):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    customers = models.ManyToManyField('Customer', through='CustomerUser')
     name = models.CharField(max_length=250, blank=False, null=False)
     email = models.EmailField(max_length=250, unique=True, blank=False, null=False)
     age = models.IntegerField(null=True, blank=False)
@@ -113,6 +114,7 @@ class Product(models.Model):
         null=False,
         default=''
     )
+    warehouses = models.ManyToManyField('Warehouse', through='WarehouseProduct')
 
     class Meta:
         unique_together = ['created_by']
@@ -121,6 +123,8 @@ class Product(models.Model):
 class Customer(TimeStampedModel):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=250, blank=False, null=False)
+    users = models.ManyToManyField(User, through='CustomerUser', null=True)
+    #sale_orders = models.ManyToManyField('Order', through='Order', null=True)
     #contact_person = models.CharField(max_length=250, blank=False, null=False)
     phone = models.CharField(max_length=50, null=True)
     address = models.CharField(max_length=255, null=True, blank=False)
@@ -142,7 +146,7 @@ class Order(TimeStampedModel):
     customer_user = models.ForeignKey(User, related_name='saleOrders', on_delete=models.DO_NOTHING, null=True)
     customer = models.ForeignKey(
         Customer, 
-        related_name='orders',
+        related_name='sale_orders',
         on_delete=models.DO_NOTHING
     )
     order_date = models.DateTimeField(auto_now_add=True)
@@ -235,6 +239,7 @@ class Warehouse(TimeStampedModel):
          on_delete=models.DO_NOTHING, 
          null=True
     )
+    produtcs = models.ManyToManyField(Product, through='WarehouseProduct')
     name = models.CharField(max_length=255, null=False, blank=False)
     capacity = models.IntegerField(null=False, blank=False, default=0)
     email = models.EmailField(max_length = 254)

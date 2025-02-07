@@ -2,27 +2,35 @@ from rest_framework import serializers
 from .models import User
 from .models import Product
 from .models import UserProfile
-from .models import Customer
-from .models import CustomerUser
-from .models import Order
-from .models import OrderDetail, Supplier, Quotation
+from .models import Customer, CustomerUser
+from .models import Order, OrderDetail
+from .models import Supplier, Quotation
 from .models import Shipment
-from .models import Warehouse
+from .models import Warehouse, WarehouseProduct
 from .models import Location
 
 
 class UserSerializer(serializers.ModelSerializer):
     products = serializers.StringRelatedField(many=True)
     profile = serializers.StringRelatedField(many=False)
-    #customers = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User
-        fields = ["name", "email", "age", "products", "profile"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        fields = [
+            "name", 
+            "email", 
+            "age", 
+            "products", 
+            "profile", 
+            "customers"
+        ]
+        read_only_fields = [
+            "id", 
+            "created_at", 
+            "updated_at"
+        ]
 
 class UserProfile(serializers.ModelSerializer):
-    #user = serializers.StringRelatedField(many=False)
     class Meta:
         model = UserProfile
         fields = [
@@ -48,7 +56,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "tax",
             "tax_type",
             "notes",
-            "product_image"
+            "product_image",
+            "warehouses",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -58,11 +67,9 @@ class CustomerUserSerialiser(serializers.ModelSerializer):
         fields = ['id', 'customer', 'user']
 
 class CustomerSerialiser(serializers.ModelSerializer):
-    users = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=User.objects.all()
-    )
+    users = serializers.SerializerMethodField()
     sale_orders = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Order.objects.all()
+        many=True, queryset=Order.objects.all(), required=False
     )
     class Meta:
         model = Customer
@@ -80,24 +87,24 @@ class CustomerSerialiser(serializers.ModelSerializer):
             'sale_orders'
         ]
 
-    def get_users(self,obj:User):
+    def get_users(self, obj:User):
         users = obj.customeruser_set.all()
-        return CustomerUserSerialiser(users,many=True).data      
+        return CustomerUserSerialiser(users, many=True).data      
 
 class OrderSerialiser(serializers.ModelSerializer):
-    orderItems = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=OrderDetail.objects.all()
-    )
+    # orderItems = serializers.PrimaryKeyRelatedField(
+    #     many=True, queryset=OrderDetail.objects.all()
+    # )
     class Meta:
         model = Order
         fields = [
             'id',
             'uuid',
             'order_status',
-            'total_products',
             'sub_total',
             'vat',
-            'total',
+            'total_amount',
+            'total_items',
             'invoice_no',
             'payment_type',
             'pay',
@@ -123,11 +130,17 @@ class ShipmentSerializer(serializers.ModelSerializer):
         fields = [
             'order',
             'shipment_date',
+            "warehouse",
+            "order",
             # 'shipment_status',
             # 'shipment_notes',
             # 'shipment_image'
         ]
-        read_only_fields = ["id", "shipment_date","created_at", "updated_at"]
+        read_only_fields = [
+            "id", 
+            "created_at", 
+            "updated_at"
+        ]
 
 class QuotationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -139,7 +152,11 @@ class QuotationSerializer(serializers.ModelSerializer):
             "reference",
             'note',
         ]
-        read_only_fields = ["id", "customer", "date", "status", "created_at", "updated_at"]
+        read_only_fields = [
+            "id", 
+            "created_at", 
+            "updated_at"
+        ]
 
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -147,9 +164,26 @@ class WarehouseSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'capacity',
-            'email'
+            'email',
+            'products',
         ]
-        read_only_fields = ["id", "name", "capacity", "email", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "created_at", 
+            "updated_at"
+        ]
+
+class WarehouseProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WarehouseProduct
+        fields = [
+            'id',
+            'warehouse',
+            'product'
+        ]
+        read_only_fields = [
+            "id"
+        ]
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
