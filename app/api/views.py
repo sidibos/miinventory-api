@@ -302,6 +302,25 @@ class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerialiser
 
+    def post(self, request, *args, **kwargs):
+        serializer = CustomerSerialiser(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.save()
+
+            if request.data.get("user"):
+                customer_user_data = {
+                    "customer": serializer.data.get("id"),
+                    "user": request.data.get("user")
+                }
+                customerUserSerializer = CustomerUserSerialiser(data=customer_user_data)
+                customerUserSerializer.is_valid(raise_exception=True)
+                customerUserSerializer.save()
+        except Exception as e:
+            return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response({"result": "success", "data": serializer.data}, status=status.HTTP_201_CREATED)
+
 class WareahouseList(generics.ListAPIView):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
