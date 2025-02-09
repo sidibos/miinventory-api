@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            "id",
             "name", 
             "email", 
             "age", 
@@ -30,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
             "updated_at"
         ]
 
-class UserProfile(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
@@ -159,13 +160,14 @@ class QuotationSerializer(serializers.ModelSerializer):
         ]
 
 class WarehouseSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField()
     class Meta:
         model = Warehouse
         fields = [
             'name',
             'capacity',
             'email',
-            'products',
+           'products',
         ]
         read_only_fields = [
             "id",
