@@ -1,7 +1,8 @@
+import re
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, generics
+from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -121,6 +122,7 @@ def get_users(request):
 def edit_user(request, email=''):
     # Return requested user
     try:
+        #validateEmail = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
         valid_email = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
         if not valid_email:
             raise ValidationError("Invalid Email")
@@ -298,6 +300,35 @@ def delete_user(request):
         return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class ProductViewSet(viewsets.ModelViewSet): 
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer  
+
+class CustomerViewSet(viewsets.ModelViewSet): 
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerialiser    
+
+class OrderViewSet(viewsets.ModelViewSet):  
+    queryset = Order.objects.all()
+    serializer_class = OrderSerialiser  
+
+class WarehouseViewSet(viewsets.ModelViewSet):  
+    queryset = Warehouse.objects.all()
+    serializer_class = WarehouseSerializer
+
+class LocationViewSet(viewsets.ModelViewSet):  
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class ShippingViewSet(viewsets.ModelViewSet):  
+    queryset = Shipment.objects.all()
+    serializer_class = ShipmentSerializer
+
+    
 class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerialiser
