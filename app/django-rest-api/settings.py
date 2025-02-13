@@ -21,6 +21,8 @@ SECRET_KEY = environ.get("SECRET_KEY", "INSECURE_KEY")
 
 DEBUG = int(environ.get("DEBUG", default=1))
 
+APPEND_SLASH = False
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

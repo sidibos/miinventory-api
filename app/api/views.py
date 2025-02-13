@@ -6,13 +6,13 @@ from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User, Customer, CustomerUser, Shipment, Supplier
+from .models import User, Customer, CustomerUser, Shipment, Supplier, Stock
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
-from .models import Product, Warehouse, Order, Location, Quotation
-from .serializers import ProductSerializer
+from .models import Product, Warehouse, Order, Location, Quotation, Category
+from .serializers import ProductSerializer, StockSerializer
 from .serializers import WarehouseSerializer
 from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer, SupplierSerializer
-from .serializers import QuotationSerializer
+from .serializers import QuotationSerializer, CategorySerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -146,6 +146,7 @@ def edit_user(request, email=''):
         properties={
             "name": openapi.Schema(type=openapi.TYPE_STRING, description="Name of the user"),
             "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email of the user"),
+            "username": openapi.Schema(type=openapi.TYPE_STRING, description="Username of the user"),
             "age": openapi.Schema(type=openapi.TYPE_INTEGER, description="Age of the user"),
         },
         required=["name", "email", "age"],
@@ -328,7 +329,18 @@ class ShippingViewSet(viewsets.ModelViewSet):
     queryset = Shipment.objects.all()
     serializer_class = ShipmentSerializer
 
-    
+class QuotationViewSet(viewsets.ModelViewSet):  
+    queryset = Quotation.objects.all()
+    serializer_class = QuotationSerializer
+
+class SupplierViewSet(viewsets.ModelViewSet):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+
+class StockViewSet(viewsets.ModelViewSet):    
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
 class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerialiser
@@ -375,3 +387,11 @@ class QuotationList(generics.ListAPIView):
 class SupplierList(generics.ListAPIView):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+
+class StockViewSet(viewsets.ModelViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer

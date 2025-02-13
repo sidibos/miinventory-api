@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Category
 from .models import Product
 from .models import UserProfile
 from .models import Customer, CustomerUser
-from .models import Order, OrderDetail
+from .models import Order, OrderDetail, Stock
 from .models import Supplier, Quotation
 from .models import Shipment
 from .models import Warehouse, WarehouseProduct
@@ -11,8 +11,8 @@ from .models import Location
 
 
 class UserSerializer(serializers.ModelSerializer):
-    products = serializers.StringRelatedField(many=True)
-    profile = serializers.StringRelatedField(many=False)
+    #products = serializers.StringRelatedField(many=True)
+    #profile = serializers.StringRelatedField(many=False)
 
     class Meta:
         model = User
@@ -21,9 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
             "name", 
             "email", 
             "age", 
-            "products", 
-            "profile", 
-            "customers"
+            #"products", 
+            #"profile", 
+            #"customers"
         ]
         read_only_fields = [
             "id", 
@@ -198,3 +198,14 @@ class LocationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "name", "created_at", "updated_at"] 
            
+class StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+        #read_only_fields = ["id", "created_at", "updated_at"]
