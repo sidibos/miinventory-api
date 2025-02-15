@@ -74,19 +74,8 @@ class CustomerSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = Customer
-        fields = [
-            'id',
-            'uuid',
-            'name',
-            'phone',
-            'address',
-            'bank_name',
-            'account_holder',
-            'account_number',
-            'short_code',
-            'users',
-            'sale_orders'
-        ]
+        fields = '__all__'
+        read_only_fields = ["id", "created_at", "updated_at"]
 
     def get_users(self, obj:User):
         users = obj.customeruser_set.all()
@@ -115,14 +104,7 @@ class OrderSerialiser(serializers.ModelSerializer):
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = [
-            's_name',
-            'phone',
-            'address',
-            'email',
-            #'website',
-            #'notes'
-        ]
+        fields = '__all__' 
         read_only_fields = ["id", "created_at", "updated_at"]
 
 class ShipmentSerializer(serializers.ModelSerializer):

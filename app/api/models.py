@@ -90,16 +90,18 @@ class Supplier(TimeStampedModel):
         on_delete=models.DO_NOTHING, 
         null=True
     )
-    s_name = models.CharField(max_length=250, blank=False, null=False, default='')
+    name = models.CharField(max_length=250, blank=False, null=False, default='')
+    company_name = models.CharField(max_length=250, blank=False, null=False, default='')
     email = models.EmailField(max_length = 254)
     phone = models.CharField(max_length=250, unique=False, blank=True, null=True)
     address = models.CharField(max_length=255, blank=False, null=True)
     class SupplierType(models.TextChoices):
-        PRODUCER = 'producer'
+        MANUFACTURER = 'manufacturer'
         DISTRIBUTOR = 'distributor'
         WHOLESALER = 'wholesaler'
-    supply_type = models.CharField(choices=SupplierType.choices)
-    photo = models.ImageField(upload_to ='uploads/')
+        RETAILER = 'retailer'
+    supplier_type = models.CharField(choices=SupplierType.choices)
+    photo = models.ImageField(upload_to ='uploads/', blank=True, null=True)
     account_holder = models.CharField(max_length=255, null=True)
     account_number = models.CharField(max_length=255, null=True)
     short_code = models.CharField(max_length=255, null=True) 
@@ -146,6 +148,7 @@ class Customer(TimeStampedModel):
     #sale_orders = models.ManyToManyField('Order', through='Order', null=True)
     #contact_person = models.CharField(max_length=250, blank=False, null=False)
     phone = models.CharField(max_length=50, null=True)
+    company_name = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True, blank=False)
     bank_name = models.CharField(max_length=255, null=True)
     account_holder = models.CharField(max_length=255, null=True)
