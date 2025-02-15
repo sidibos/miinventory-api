@@ -44,6 +44,7 @@ def get_products(request):
     try:
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
+        
         return Response(serializer.data)
 
     # Catch unexpected errors and return a 500 response
@@ -308,6 +309,18 @@ class UserViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet): 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer  
+
+    def list(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_201_CREATED
+        )
 
 class CustomerViewSet(viewsets.ModelViewSet): 
     queryset = Customer.objects.all()

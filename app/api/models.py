@@ -111,31 +111,47 @@ class Supplier(TimeStampedModel):
         return f"Supplier {self.name}"  
 
 class Product(models.Model):
+    PRODUCT_STATUS = [
+        ('active', 'Active'),
+        ('pending', 'Pending'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    created_by = models.ForeignKey(User, related_name='products', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        User,  
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='products'
+    )
     name = models.CharField(max_length=255, blank=False, null=False)
-    slug = models.CharField(max_length=255, blank=False, null=False)
+    slug = models.CharField(max_length=255, blank=False, null=False, unique=True)
+    description = models.TextField(null=True, blank=True)
+    status = models.CharField(max_length=50, choices=PRODUCT_STATUS, default='pending')
     sku = models.CharField(max_length=255, blank=False, null=False, unique=True, default='xxx')
-    code = models.CharField(max_length=255, blank=False, null=False)
-    quantity = models.IntegerField(null=False, blank=False)
-    buying_price = models.IntegerField(null=False, blank=False)
-    selling_price = models.IntegerField(null=False, blank=False)
-    min_stock = models.IntegerField(null=False, blank=False)
+    stock = models.IntegerField(null=False, blank=False)
+    price = models.IntegerField(null=False, blank=False, default=0)
+    selling_price = models.IntegerField(null=False, blank=False, default=0)
+    min_stock = models.IntegerField(null=False, blank=False, default=0)
     tax = models.IntegerField(null=True, blank=False)
     tax_type = models.IntegerField(null=True, blank=False)
-    notes = models.TextField(null=True, blank=False)
-    product_image = models.ImageField(upload_to ='uploads/')
+    category = models.ForeignKey(
+        Category,
+        related_name='products',
+        on_delete=models.DO_NOTHING,
+        null=True
+    )
+    product_image = models.ImageField(upload_to ='uploads/', default='uploads/default.jpg', blank=True, null=True)
     supplier = models.ForeignKey(
         Supplier, 
         related_name='products', 
         on_delete=models.DO_NOTHING,
-        null=False,
-        default=''
+        null=False
     )
-    warehouses = models.ManyToManyField('Warehouse', through='WarehouseProduct')
+    warehouses = models.ManyToManyField('Warehouse', through='WarehouseProduct', null=True)
 
-    class Meta:
-        unique_together = ['created_by']
+    # class Meta:
+    #     unique_together = ['created_by']
 
     def __str__(self):
         return self.name        
