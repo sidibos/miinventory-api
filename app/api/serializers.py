@@ -46,20 +46,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = [
-            "name", 
-            "slug", 
-            "code", 
-            "quantity", 
-            "buying_price", 
-            "selling_price",
-            "min_stock",
-            "tax",
-            "tax_type",
-            "notes",
-            "product_image",
-            "warehouses",
-        ]
+        fields = '__all__'
         read_only_fields = ["id", "created_at", "updated_at"]
 
 class CustomerUserSerialiser(serializers.ModelSerializer):
