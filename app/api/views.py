@@ -328,7 +328,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):  
     queryset = Order.objects.all()
-    serializer_class = OrderSerialiser  
+    serializer_class = OrderSerialiser
+
 
 class WarehouseViewSet(viewsets.ModelViewSet):  
     queryset = Warehouse.objects.all()
@@ -387,6 +388,30 @@ class LocationList(generics.ListAPIView):
 
 class OrderList(generics.ListAPIView):
     queryset = Order.objects.all()
+    serializer_class = OrderSerialiser
+
+class PurchaseOrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.filter(order_type='purchase_order')
+    serializer_class = OrderSerialiser
+
+class SalesOrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.filter(order_type='sale_order')
+    serializer_class = OrderSerialiser 
+
+    def list(self, request):
+        orders = Order.objects.all()
+        serializer = ProductSerializer(orders, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_201_CREATED
+        )
+
+class TransferOrderViewSet(viewsets.ModelViewSet):   
+    queryset = Order.objects.filter(order_type='transfer_order')
     serializer_class = OrderSerialiser
 
 class ShippingList(generics.ListAPIView):
