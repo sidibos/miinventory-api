@@ -67,6 +67,7 @@ class UserProfile(TimeStampedModel):
 class Category(TimeStampedModel):
     name = models.CharField(max_length=255, blank=False, null=False)   
     slug = models.SlugField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True, default='') 
     created_by = models.ForeignKey(
         User, 
         related_name='categories', 
@@ -141,7 +142,12 @@ class Product(models.Model):
         on_delete=models.DO_NOTHING,
         null=True
     )
-    product_image = models.ImageField(upload_to ='uploads/', default='uploads/default.jpg', blank=True, null=True)
+    # product_image = models.ImageField(
+    #     upload_to ='uploads/', 
+    #    # default='uploads/default.jpg', 
+    #     blank=True, 
+    #     null=True
+    # )
     supplier = models.ForeignKey(
         Supplier, 
         related_name='products', 
@@ -215,13 +221,16 @@ class Order(TimeStampedModel):
     delivery_date = models.DateTimeField(auto_now_add=False)
     class OrderStatus(models.TextChoices):
         PENDING = 'pending'
-        FULFILLED = 'fulfilled'
+        PROCESSSING = 'processing'
+        # SHIPPED = 'shipped'
+        # DELIVERED = 'delivered'
+        COMPLETED = 'completed'
         CANCELLED = 'cancelled'
     order_status = models.CharField(choices=OrderStatus.choices)
     class OrderType(models.TextChoices):
-        SALE_ORDER = 'sale order'
-        PURCHASE_ORDER = 'purchase'
-        TRANSFER_ORDER = 'transfer order'
+        SALE_ORDER = 'sale_order'
+        PURCHASE_ORDER = 'purchase_order'
+        TRANSFER_ORDER = 'transfer_order'
     order_type = models.CharField(choices=OrderType.choices)
     total_items = models.IntegerField(null=False, blank=False)
     sub_total = models.IntegerField(null=False, blank=False)
@@ -229,7 +238,7 @@ class Order(TimeStampedModel):
     total_amount = models.IntegerField(null=False, blank=False)
     invoice_no = models.CharField(max_length=255, null=True)
     payment_type = models.CharField(max_length=255, null=True)
-    pay = models.IntegerField(null=False, blank=False)
+    pay = models.IntegerField(null=False, blank=False, default=0)
     due = models.IntegerField(null=False, blank=False)
     from_warehouse = models.ForeignKey(
         Warehouse, 
@@ -317,6 +326,7 @@ class Stock(models.Model):
     warehouse = models.ForeignKey(Warehouse, related_name='stocks', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    min_stock = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.product.name} - {self.warehouse.name}"
