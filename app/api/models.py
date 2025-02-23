@@ -101,7 +101,7 @@ class Supplier(TimeStampedModel):
         DISTRIBUTOR = 'distributor'
         WHOLESALER = 'wholesaler'
         RETAILER = 'retailer'
-    supplier_type = models.CharField(choices=SupplierType.choices)
+    supplier_type = models.CharField(choices=SupplierType.choices, max_length=150)
     photo = models.ImageField(upload_to ='uploads/', blank=True, null=True)
     account_holder = models.CharField(max_length=255, null=True)
     account_number = models.CharField(max_length=255, null=True)
@@ -226,12 +226,12 @@ class Order(TimeStampedModel):
         # DELIVERED = 'delivered'
         COMPLETED = 'completed'
         CANCELLED = 'cancelled'
-    order_status = models.CharField(choices=OrderStatus.choices)
+    order_status = models.CharField(choices=OrderStatus.choices, max_length =150)
     class OrderType(models.TextChoices):
         SALE_ORDER = 'sale_order'
         PURCHASE_ORDER = 'purchase_order'
         TRANSFER_ORDER = 'transfer_order'
-    order_type = models.CharField(choices=OrderType.choices)
+    order_type = models.CharField(choices=OrderType.choices, max_length=150)
     total_items = models.IntegerField(null=False, blank=False)
     sub_total = models.IntegerField(null=False, blank=False)
     vat = models.IntegerField(null=False, blank=False)
@@ -295,7 +295,7 @@ class Quotation(TimeStampedModel):
         IN_PROGRESS = 'in_progress'
         APPROVED = 'approved'
         REJECTED = 'rejected'
-    status = models.CharField(choices=QuotationStatus.choices)
+    status = models.CharField(choices=QuotationStatus.choices, max_length=150)
     note = models.TextField()
     created_by = models.ForeignKey(
         User, 
