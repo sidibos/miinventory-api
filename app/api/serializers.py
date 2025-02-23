@@ -3,7 +3,7 @@ from .models import User, Category
 from .models import Product
 from .models import UserProfile
 from .models import Customer, CustomerUser
-from .models import Order, OrderDetail, Stock
+from .models import Order, OrderDetail
 from .models import Supplier, Quotation
 from .models import Shipment
 from .models import Warehouse, WarehouseProduct
@@ -167,10 +167,10 @@ class LocationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "name", "created_at", "updated_at"] 
            
-class StockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stock
-        fields = '__all__'
+# class StockSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Stock
+#         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
