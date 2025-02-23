@@ -1,14 +1,18 @@
+import re
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User
-from .serializers import UserSerializer
-from .models import Product
-from .serializers import ProductSerializer
+from .models import User, Customer, CustomerUser, Shipment, Supplier, Stock
+from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
+from .models import Product, Warehouse, Order, Location, Quotation, Category
+from .serializers import ProductSerializer, StockSerializer
+from .serializers import WarehouseSerializer
+from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer, SupplierSerializer
+from .serializers import QuotationSerializer, CategorySerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -40,6 +44,7 @@ def get_products(request):
     try:
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
+        
         return Response(serializer.data)
 
     # Catch unexpected errors and return a 500 response
@@ -114,6 +119,25 @@ def get_users(request):
         return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(["GET"])
+def edit_user(request, email=''):
+    # Return requested user
+    try:
+        #validateEmail = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        valid_email = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
+        if not valid_email:
+            raise ValidationError("Invalid Email")
+    
+        user = get_object_or_404(User, email=email)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    # Catch Http404 raised by get_object_or_404() if user is not found
+    except Http404:
+        return Response({"result": "error", "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except ValidationError as e:
+        return Response({"result": "error", "message": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+
 @swagger_auto_schema(
     method="post",
     operation_summary="Creates new user",
@@ -123,6 +147,7 @@ def get_users(request):
         properties={
             "name": openapi.Schema(type=openapi.TYPE_STRING, description="Name of the user"),
             "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email of the user"),
+            "username": openapi.Schema(type=openapi.TYPE_STRING, description="Username of the user"),
             "age": openapi.Schema(type=openapi.TYPE_INTEGER, description="Age of the user"),
         },
         required=["name", "email", "age"],
@@ -275,3 +300,148 @@ def delete_user(request):
     # Catch unexpected errors and return a 500 response
     except Exception as e:
         return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class ProductViewSet(viewsets.ModelViewSet): 
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer  
+
+    def list(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_201_CREATED
+        )
+
+class CustomerViewSet(viewsets.ModelViewSet): 
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerialiser    
+
+class OrderViewSet(viewsets.ModelViewSet):  
+    queryset = Order.objects.all()
+    serializer_class = OrderSerialiser
+
+
+class WarehouseViewSet(viewsets.ModelViewSet):  
+    queryset = Warehouse.objects.all()
+    serializer_class = WarehouseSerializer
+
+class LocationViewSet(viewsets.ModelViewSet):  
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class ShippingViewSet(viewsets.ModelViewSet):  
+    queryset = Shipment.objects.all()
+    serializer_class = ShipmentSerializer
+
+class QuotationViewSet(viewsets.ModelViewSet):  
+    queryset = Quotation.objects.all()
+    serializer_class = QuotationSerializer
+
+class SupplierViewSet(viewsets.ModelViewSet):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+
+class StockViewSet(viewsets.ModelViewSet):    
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+class CustomerList(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerialiser
+
+    def post(self, request, *args, **kwargs):
+        serializer = CustomerSerialiser(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.save()
+
+            if request.data.get("user"):
+                customer_user_data = {
+                    "customer": serializer.data.get("id"),
+                    "user": request.data.get("user")
+                }
+                customerUserSerializer = CustomerUserSerialiser(data=customer_user_data)
+                customerUserSerializer.is_valid(raise_exception=True)
+                customerUserSerializer.save()
+        except Exception as e:
+            return Response({"result": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response({"result": "success", "data": serializer.data}, status=status.HTTP_201_CREATED)
+
+class WareahouseList(generics.ListAPIView):
+    queryset = Warehouse.objects.all()
+    serializer_class = WarehouseSerializer
+
+class LocationList(generics.ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+class OrderList(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerialiser
+
+class PurchaseOrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.filter(order_type='purchase_order')
+    serializer_class = OrderSerialiser
+
+    def list(self, request):
+        orders = Order.objects.all()
+        serializer = ProductSerializer(orders, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_201_CREATED
+        )
+
+class SalesOrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.filter(order_type='sale_order')
+    serializer_class = OrderSerialiser 
+
+    def list(self, request):
+        orders = Order.objects.all()
+        serializer = ProductSerializer(orders, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_201_CREATED
+        )
+
+class TransferOrderViewSet(viewsets.ModelViewSet):   
+    queryset = Order.objects.filter(order_type='transfer_order')
+    serializer_class = OrderSerialiser
+
+class ShippingList(generics.ListAPIView):
+    queryset = Shipment.objects.all()
+    serializer_class = ShipmentSerializer
+
+class QuotationList(generics.ListAPIView):
+    queryset = Quotation.objects.all()
+    serializer_class = QuotationSerializer    
+
+class SupplierList(generics.ListAPIView):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+
+class StockViewSet(viewsets.ModelViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
