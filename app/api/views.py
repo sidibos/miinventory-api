@@ -6,10 +6,10 @@ from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User, Customer, CustomerUser, Shipment, Supplier, Stock
+from .models import User, Customer, CustomerUser, Shipment, Supplier
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
 from .models import Product, Warehouse, Order, Location, Quotation, Category
-from .serializers import ProductSerializer, StockSerializer
+from .serializers import ProductSerializer
 from .serializers import WarehouseSerializer
 from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer, SupplierSerializer
 from .serializers import QuotationSerializer, CategorySerializer
@@ -351,9 +351,9 @@ class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
 
-class StockViewSet(viewsets.ModelViewSet):    
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
+# class StockViewSet(viewsets.ModelViewSet):    
+#     queryset = Stock.objects.all()
+#     serializer_class = StockSerializer
 
 class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
@@ -438,9 +438,9 @@ class SupplierList(generics.ListAPIView):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
 
-class StockViewSet(viewsets.ModelViewSet):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
+# class StockViewSet(viewsets.ModelViewSet):
+#     queryset = Stock.objects.all()
+#     serializer_class = StockSerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()

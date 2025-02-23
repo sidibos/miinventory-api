@@ -322,14 +322,14 @@ class Unit(TimeStampedModel):
         return self.name
     
 # Stock Model (Tracks stock levels in warehouses)
-class Stock(models.Model):
-    warehouse = models.ForeignKey(Warehouse, related_name='stocks', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
-    min_stock = models.IntegerField(default=0)
+# class Stock(models.Model):
+#     warehouse = models.ForeignKey(Warehouse, related_name='stocks', on_delete=models.CASCADE)
+#     product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
+#     quantity = models.IntegerField(default=0)
+#     min_stock = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.product.name} - {self.warehouse.name}"
+#     def __str__(self):
+#         return f"{self.product.name} - {self.warehouse.name}"
 
 class WarehouseProduct(TimeStampedModel):
     warehouse = models.ForeignKey(
