@@ -18,7 +18,7 @@ class UserTestCase(APITestCase):
         """
         Create dummy user for testing
         """
-        data = {"name": name, "email": email, "age": age}
+        data = {"name": name, "email": email}
 
         response = self.client.post("/api/users/add", data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
