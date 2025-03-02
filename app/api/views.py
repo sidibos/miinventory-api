@@ -5,7 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from .models import User, Customer, CustomerUser, Shipment, Supplier
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
 from .models import Product, Warehouse, Order, Location, Quotation, Category
@@ -396,7 +396,7 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         orders = Order.objects.all()
-        serializer = ProductSerializer(orders, many=True)
+        serializer = OrderSerialiser(orders, many=True)
         return Response(
             {
                 "result": "success", 
@@ -445,3 +445,39 @@ class SupplierList(generics.ListAPIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+class SupplierProducts(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get(self, request, *args, **kwargs):
+        supplier_id = self.kwargs.get('id')
+        products = Product.objects.filter(supplier=supplier_id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data,
+                "total": len(serializer.data)
+            }, 
+            status=status.HTTP_200_OK
+        )
+
+    # def get_products(self, request, *args, **kwargs):
+    #     print(self.kwargs)
+    #     exit()
+    #     supplier_id = self.kwargs.get('id')
+    #     products = Product.objects.filter(supplier=supplier_id)
+    #     serializer = ProductSerializer(products, many=True)
+    #     return Response(
+    #         {
+    #             "result": "success", 
+    #             "data": serializer.data,
+    #             "total": len(serializer.data)
+    #         }, 
+    #         status=status.HTTP_201_CREATED
+    #     )
+
+    # def get_queryset(self):
+    #     supplier_id = self.kwargs.get('id')
+    #     return Product.objects.filter(supplier=supplier_id)
