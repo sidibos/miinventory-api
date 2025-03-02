@@ -3,7 +3,7 @@ from .models import User, Category
 from .models import Product
 from .models import UserProfile
 from .models import Customer, CustomerUser
-from .models import Order, OrderDetail
+from .models import Order
 from .models import Supplier, Quotation
 from .models import Shipment
 from .models import Warehouse, WarehouseProduct
@@ -85,8 +85,9 @@ class OrderSerialiser(serializers.ModelSerializer):
             'invoice_no',
             'payment_type',
             'pay',
-            'due'
+            'order_due_date'
         ]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
