@@ -1,3 +1,4 @@
+from typing import Iterable
 import uuid
 from django.db import models
 from datetime import datetime
@@ -205,6 +206,7 @@ class Warehouse(TimeStampedModel):
         return f"Warehouse {self.name}"
     
 class Order(TimeStampedModel):
+    products = models.ManyToManyField(Product, through='OrderItem')
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     customer_user = models.ForeignKey(
         User, 
@@ -218,7 +220,7 @@ class Order(TimeStampedModel):
         null=True
     )
     order_date = models.DateTimeField(auto_now_add=True)
-    delivery_date = models.DateTimeField(auto_now_add=False)
+    #delivery_date = models.DateTimeField(auto_now_add=False)
     class OrderStatus(models.TextChoices):
         PENDING = 'pending'
         PROCESSSING = 'processing'
@@ -233,13 +235,15 @@ class Order(TimeStampedModel):
         TRANSFER_ORDER = 'transfer_order'
     order_type = models.CharField(choices=OrderType.choices, max_length=150)
     total_items = models.IntegerField(null=False, blank=False)
-    sub_total = models.IntegerField(null=False, blank=False)
-    vat = models.IntegerField(null=False, blank=False)
-    total_amount = models.IntegerField(null=False, blank=False)
+    sub_total = models.FloatField(null=False, blank=False)
+    vat = models.FloatField(null=False, blank=False)
+    total_amount = models.FloatField(null=False, blank=False)
     invoice_no = models.CharField(max_length=255, null=True)
     payment_type = models.CharField(max_length=255, null=True)
     pay = models.IntegerField(null=False, blank=False, default=0)
-    due = models.IntegerField(null=False, blank=False)
+    #due_date = models.DateTimeField(null=False, blank=False, default=datetime.now)
+    due = models.IntegerField(null=False, blank=False, default=0)
+    order_due_date = models.DateTimeField(null=False, blank=False, default=datetime.now)
     from_warehouse = models.ForeignKey(
         Warehouse, 
         related_name='outgoing_transfers', 
@@ -254,10 +258,27 @@ class Order(TimeStampedModel):
     )
     quantity = models.IntegerField(default=0)
 
+    def save(self, *args, **kwargs):
+        # if self.order_type == 'purchaser_order':
+        #     self.total_items = sum([item.quantity for item in self.orderItems.all()])
+        #     self.sub_total = sum([item.total_amount for item in self.orderItems.all()])
+        #     self.vat = self.sub_total * 0.16
+        #     self.total_amount = self.sub_total + self.vat
+        try:
+            super().save(*args, **kwargs)
+            for item in self.orderItems.all():
+                item.product.stock += item.quantity
+                item.unitcost = item.product.price
+                item.total_amount = item.unitcost * item.quantity
+                item.product.save()
+                item.save()
+        except Exception as e:
+            raise ValueError("Unable to create order: " + str(e))
+
     def __str__(self):
         return f"Order {self.uuid}"
 
-class OrderDetail(TimeStampedModel):
+class OrderItem(TimeStampedModel):
     order = models.ForeignKey(
         Order, 
         related_name='orderItems', 
@@ -273,6 +294,23 @@ class OrderDetail(TimeStampedModel):
 
     class Meta:
         unique_together = ['order', 'product']
+
+# class NewOrderItem(TimeStampedModel):
+#     order = models.ForeignKey(
+#         Order, 
+#         related_name='orderItems', 
+#         on_delete=models.CASCADE
+#     )
+#     product = models.ForeignKey(
+#         Product, 
+#         on_delete=models.CASCADE
+#     )
+#     quantity = models.IntegerField(null=False, blank=False, default=0)
+#     unitcost = models.IntegerField(null=False, blank=False)
+#     total_amount = models.IntegerField(null=False, blank=False)
+
+#     class Meta:
+#         unique_together = ['order', 'product']        
 
 class Quotation(TimeStampedModel):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)

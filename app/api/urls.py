@@ -18,9 +18,21 @@ router.register(r'categories', views.CategoryViewSet)
 router.register(r'sales-orders', views.SalesOrderViewSet)
 router.register(r'purchase-orders', views.PurchaseOrderViewSet)
 router.register(r'transfer-orders', views.TransferOrderViewSet)
+#router.register(r'suppliers/<int:id>/products', views.SupplierProducts.get_products, basename="supplier.products")
 
 urlpatterns = [
     path('', include(router.urls)),
+    path(
+        'suppliers/<int:id>/products/', 
+        views.SupplierProducts.as_view(),
+        name="supplier.products"
+    ),
+    path(
+        'suppliers/<int:id>/products', 
+        views.SupplierProducts.as_view(), 
+        name="supplier.products"
+    ),
+    #path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
 # urlpatterns = [
