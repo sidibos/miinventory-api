@@ -1,16 +1,12 @@
-# Dockerized Django REST API
+# Miinventory API
 
-This is simple Django REST API build with Django REST Framework.
+This is the API for miinventory web build with Django REST Framework.
 It is dockerized using docker-compose.
 It uses PostgreSQL as database.
 
 ## Purpose
 
-This project was a task for a job interview.
-The purpose of this project is to demonstrate my skills in designing, building, documenting and testing REST API.
-I chose to use Django REST Framework because it is a very popular framework for building REST APIs in Python and I
-wanted to try it out. I selected PostgreSQL as the database because it is the most popular database for today's web
-applications.
+This API will be consumed by miinventory web built in React
 
 ## Requirements
 
