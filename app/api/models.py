@@ -267,7 +267,7 @@ class Order(TimeStampedModel):
         try:
             super().save(*args, **kwargs)
             for item in self.orderItems.all():
-                item.product.quantity += item.quantity
+                item.product.stock += item.quantity
                 item.unitcost = item.product.price
                 item.total_amount = item.unitcost * item.quantity
                 item.product.save()
