@@ -7,7 +7,7 @@ from .models import Order
 from .models import Supplier, Quotation
 from .models import Shipment
 from .models import Warehouse, WarehouseProduct
-from .models import Location
+from .models import Location, OrderItem
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -78,6 +78,7 @@ class OrderSerialiser(serializers.ModelSerializer):
             'id',
             'uuid',
             'order_status',
+            'order_type',
             'sub_total',
             'vat',
             'total_amount',
@@ -179,3 +180,10 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
         #read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = '__all__'
+        read_only_fields = ["id", "created_at", "updated_at"]

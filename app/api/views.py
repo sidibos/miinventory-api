@@ -6,11 +6,11 @@ from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
-from .models import User, Customer, CustomerUser, Shipment, Supplier
+from .models import User, Customer, CustomerUser, Shipment, Supplier, OrderItem
 from .serializers import UserSerializer, CustomerSerialiser, CustomerUserSerialiser
 from .models import Product, Warehouse, Order, Location, Quotation, Category
 from .serializers import ProductSerializer
-from .serializers import WarehouseSerializer
+from .serializers import WarehouseSerializer, OrderSerialiser, OrderItemSerializer
 from .serializers import LocationSerializer, OrderSerialiser, ShipmentSerializer, SupplierSerializer
 from .serializers import QuotationSerializer, CategorySerializer
 from django.shortcuts import get_object_or_404
@@ -405,6 +405,72 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
             }, 
             status=status.HTTP_201_CREATED
         )
+    
+    def destroy(self, request, pk=None):
+        order = Order.objects.get(id=pk)
+        order.delete()
+        return Response(
+            {
+                "result": "success", 
+                "message": "Order deleted successfully"
+            }, 
+            status=status.HTTP_204_NO_CONTENT
+        )
+    
+    def retrieve(self, request, pk=None):
+        order = Order.objects.get(id=pk)
+        serializer = OrderSerialiser(order)
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data
+            }, 
+            status=status.HTTP_200_OK
+        )
+    def create(self, request):
+        request.data['orderItems'] = request.data.get('products')
+        request.data['order_type'] = 'purchase_order'
+        serializer = OrderSerialiser(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        for product in request.data.get('products'):
+            product_id = product.get('product_id')
+            quantity = product.get('quantity')
+            order_item = OrderItem.objects.create(
+                order=Order.objects.get(pk=serializer.data.get('id')),
+                product=Product.objects.get(pk=product_id),
+                quantity=quantity,
+                unitcost=Product.objects.get(pk=product_id).price,
+                total_amount=Product.objects.get(pk=product_id).price * quantity,
+            )
+            order_item.save()
+
+            product_instance = Product.objects.get(pk=product_id)
+            product_instance.stock += quantity
+            product_instance.save()
+    
+        return Response(
+            {
+                "result": "success", 
+                "data": serializer.data
+            }, 
+            status=status.HTTP_201_CREATED
+        )
+    # def get(self, request, *args, **kwargs):
+    #     print(self.kwargs)
+    #     exit
+    #     order_id = self.kwargs.get('id')
+    #     order = Order.objects.get(id=order_id)
+    #     serializer = OrderSerialiser(order)
+    #     return Response(
+    #         {
+    #             "result": "success", 
+    #             "data": serializer.data
+    #         }, 
+    #         status=status.HTTP_200_OK
+    #     )
+
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.filter(order_type='sale_order')

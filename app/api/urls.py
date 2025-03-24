@@ -32,6 +32,11 @@ urlpatterns = [
         views.SupplierProducts.as_view(), 
         name="supplier.products"
     ),
+    path(
+        'purchase-orders/<int:id>', 
+        views.PurchaseOrderViewSet.as_view({'get':'retrieve'}), 
+        name="view.purchase-order"
+    ),
     #path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

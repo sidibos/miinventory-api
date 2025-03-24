@@ -112,7 +112,7 @@ class Supplier(TimeStampedModel):
     def __str__(self):
         return f"Supplier {self.name}"  
 
-class Product(models.Model):
+class Product(TimeStampedModel):
     PRODUCT_STATUS = [
         ('active', 'Active'),
         ('pending', 'Pending'),
@@ -259,19 +259,13 @@ class Order(TimeStampedModel):
     quantity = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # if self.order_type == 'purchaser_order':
-        #     self.total_items = sum([item.quantity for item in self.orderItems.all()])
-        #     self.sub_total = sum([item.total_amount for item in self.orderItems.all()])
-        #     self.vat = self.sub_total * 0.16
-        #     self.total_amount = self.sub_total + self.vat
         try:
             super().save(*args, **kwargs)
-            for item in self.orderItems.all():
-                item.product.stock += item.quantity
-                item.unitcost = item.product.price
-                item.total_amount = item.unitcost * item.quantity
-                item.product.save()
-                item.save()
+            
+            # for product in self.orderItems.all():
+            #     raise ValueError("breaking here: " + str(product))
+            #     product.stock -= self.quantity
+            #     product.save()
         except Exception as e:
             raise ValueError("Unable to create order: " + str(e))
 
